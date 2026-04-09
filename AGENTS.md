@@ -1,0 +1,6 @@
+- yarn/nextjs16/chakra v2を利用
+- LLMは、openai sdkを利用
+- apiにLLMのエンドポイントがある
+- 外部検索はSERPAPIを使う
+- DBを利用しない
+- ファイルIOはなるべくフロントエンドで完結

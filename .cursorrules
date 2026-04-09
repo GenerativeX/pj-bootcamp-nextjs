@@ -1,0 +1,23 @@
+Prismaなどのデータベースは利用しないでください。
+ライブラリのインストールには、yarnを利用してください。
+以下のモデルが利用可能です。
+- Claude Opus 4.6
+- Claude Sonnet 4.6
+- GPT-5.4
+- GPT-5.3 Codex
+Web検索が必要な場合は、websearchエージェントを活用ください。
+
+利用可能なAPI:
+- OPENAI_API_KEY（OpenAI API）
+- ANTHROPIC_API_KEY（Anthropic API）
+- SERP_API_KEY（Web検索用）
+
+- yarn/nextjs16/chakra v2を利用
+- yarn/nextjs16/chakra v2を利用
+- LLMは、openai sdkを利用
+- apiにLLMのエンドポイントがある
+- 外部検索はSERPAPIを使う
+- DBを利用しない
+- ファイルIOはなるべくフロントエンドで完結
+
+- git commitはしない
