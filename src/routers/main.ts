@@ -6,6 +6,7 @@ import { llmChatRoute } from "@/routers/llm-chat";
 import pdfReaderRoute from "@/routers/pdf-reader";
 import webSearchRoute from "@/routers/web-search";
 import webSearchAgentRoute from "@/routers/web-search-agent";
+import paymentFlowRoute from "@/routers/payment-flow";
 
 /**
  * OpenAPIHonoアプリケーションのエントリポイント
@@ -76,6 +77,7 @@ app.route("/llm/chat", llmChatRoute);
 app.route("/pdf-reader", pdfReaderRoute);
 app.route("/web-search", webSearchRoute);
 app.route("/web-search-agent", webSearchAgentRoute);
+app.route("/payment-flow", paymentFlowRoute);
 
 /**
  * OpenAPIドキュメントエンドポイント
@@ -110,6 +112,10 @@ app.doc("/doc", {
     {
       name: "web-search-agent",
       description: "OpenAI Agents SDK + SerpAPIによるWeb検索エージェント",
+    },
+    {
+      name: "payment-flow",
+      description: "Payment flow diagram generation & agentic revision API",
     },
   ],
 });
