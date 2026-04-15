@@ -11,6 +11,7 @@ import {
   FiGlobe,
   FiFileText,
   FiSearch,
+  FiGitMerge,
 } from "react-icons/fi";
 
 export interface LinkItemProps {
@@ -24,4 +25,5 @@ export const LinkItems: LinkItemProps[] = [
 
   { name: "PDF Reader", icon: FiFileText, href: "/pdf-reader" },
   { name: "Web検索Agent", icon: FiSearch, href: "/web-search-agent" },
+  { name: "Payment Flow", icon: FiGitMerge, href: "/payment-flow" },
 ];
