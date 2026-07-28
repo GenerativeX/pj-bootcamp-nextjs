@@ -72,9 +72,7 @@ function isLocalAnthropicPreferred(): boolean {
 function hasClaudeProviderCredentials(): boolean {
   return (
     isLocalAnthropicPreferred() ||
-    !!(
-      process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
-    )
+    !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
   );
 }
 
@@ -344,9 +342,7 @@ export function getAgentModel(
     );
 
     if (!process.env.OPENAI_API_KEY) {
-      throw error instanceof Error
-        ? error
-        : new Error(String(error));
+      throw error instanceof Error ? error : new Error(String(error));
     }
 
     const openaiFallback = getModelConfig(DEFAULT_MODEL, "openai", {
