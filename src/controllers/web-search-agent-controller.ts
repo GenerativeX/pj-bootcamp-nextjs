@@ -1,8 +1,11 @@
 import { run } from "@openai/agents";
+import type { AgentInputItem } from "@openai/agents";
 import { createAgent } from "@/lib/llm/create-agent";
 import { WebController } from "@/controllers/web-controller";
 import { tool } from "@openai/agents";
 import { z } from "zod";
+import { DEFAULT_MODEL } from "@/lib/llm/model-options";
+import { resolveModelForAgent } from "@/lib/llm/ai-sdk";
 
 const webController = new WebController();
 
@@ -55,10 +58,34 @@ export interface WebSearchAgentResponse {
   model: string;
 }
 
+function toAgentInputItems(
+  messages: { role: "user" | "assistant"; content: string }[],
+): AgentInputItem[] {
+  return messages.map((message) => {
+    if (message.role === "user") {
+      return {
+        type: "message",
+        role: "user",
+        content: message.content,
+      };
+    }
+    return {
+      type: "message",
+      role: "assistant",
+      status: "completed",
+      content: [{ type: "output_text", text: message.content }],
+    };
+  });
+}
+
+function resolveWebSearchAgentModel(requested?: string): string {
+  return resolveModelForAgent(requested ?? DEFAULT_MODEL);
+}
+
 export async function runWebSearchAgent(
   request: WebSearchAgentRequest,
 ): Promise<WebSearchAgentResponse> {
-  const modelName = request.model ?? "claude-sonnet-4-6";
+  const modelName = resolveWebSearchAgentModel(request.model);
 
   const agent = createAgent({
     name: "Web Search Agent",
@@ -76,7 +103,7 @@ export async function runWebSearchAgent(
     model: modelName,
   });
 
-  const result = await run(agent, request.messages);
+  const result = await run(agent, toAgentInputItems(request.messages));
 
   return {
     response: result.finalOutput ?? "",

@@ -19,9 +19,9 @@ const AgentRequestSchema = z
     messages: z.array(MessageSchema).openapi({
       description: "チャットメッセージの配列",
     }),
-    model: z.string().optional().default("claude-sonnet-4-6").openapi({
+    model: z.string().optional().default("gpt-5.4-2026-03-05").openapi({
       description: "使用するモデル名",
-      example: "claude-sonnet-4-6",
+      example: "gpt-5.4-2026-03-05",
     }),
   })
   .openapi("AgentRequest");
