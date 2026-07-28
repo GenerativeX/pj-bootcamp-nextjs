@@ -6,7 +6,7 @@ import {
   Button,
   Container,
   Heading,
-  Input,
+  Textarea,
   VStack,
   HStack,
   Text,
@@ -146,18 +146,21 @@ export default function ChatPage() {
           </VStack>
         </Box>
 
-        <HStack>
-          <Input
+        <HStack align="flex-end">
+          <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
+              if (e.metaKey || e.ctrlKey) {
                 e.preventDefault();
                 sendMessage();
               }
             }}
             placeholder="メッセージを入力..."
             disabled={isLoading}
+            rows={3}
+            resize="vertical"
           />
           <Button onClick={sendMessage} loading={isLoading} colorPalette="blue">
             送信
@@ -170,7 +173,7 @@ export default function ChatPage() {
             <br />
             1. モデルを選択（OpenAIまたはClaude）
             <br />
-            2. メッセージを入力して送信
+            2. メッセージを入力（Enterで改行、⌘/Ctrl+Enterで送信）
             <br />
             3. APIは自動的にモデル名から適切なAPIを選択します
           </Text>

@@ -69,6 +69,31 @@ function isLocalAnthropicPreferred(): boolean {
   return isDev && !!process.env.ANTHROPIC_API_KEY;
 }
 
+function hasClaudeProviderCredentials(): boolean {
+  return (
+    isLocalAnthropicPreferred() ||
+    !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY)
+  );
+}
+
+/**
+ * Agent用: 設定済みの認証情報に合わせてモデル名を解決する。
+ * Claude が選ばれていても Anthropic/Bedrock が無い場合は OpenAI 既定モデルへフォールバック。
+ */
+export function resolveModelForAgent(modelName?: string): string {
+  const name = modelName ?? DEFAULT_MODEL;
+  if (!name.startsWith("claude")) {
+    return name;
+  }
+  if (hasClaudeProviderCredentials()) {
+    return name;
+  }
+  console.warn(
+    `[ai-sdk] Claude model "${name}" is unavailable (set ANTHROPIC_API_KEY or AWS credentials). Using OpenAI model "${DEFAULT_MODEL}".`,
+  );
+  return DEFAULT_MODEL;
+}
+
 /**
  * BedrockのmodelId（例: anthropic.claude-sonnet-4-6-v1:0）を、
  * Anthropic直接API用のモデル名（例: claude-sonnet-4-6）へ変換。
@@ -289,9 +314,9 @@ function withReasoningEffort(
  * Agent用のモデルインスタンスを解決
  *
  * フォールバック戦略:
- * 1. 指定されたproviderでモデルを作成を試行（AI SDK経由）
- * 2. 失敗した場合、モデル名（文字列）をフォールバックとして返す
- *    → OpenAI Agents SDKがデフォルトで解決する（openai標準プロバイダー）
+ * 1. 認証情報に合わせてモデル名を解決（Claude 不可時は OpenAI 既定モデル）
+ * 2. AI SDK 経由で Model を作成
+ * 3. 失敗時は OPENAI_API_KEY があれば OpenAI 既定モデルで再試行
  *
  * @param model モデル名
  * @param provider プロバイダー名
@@ -303,18 +328,26 @@ export function getAgentModel(
   provider?: string,
   reasoningEffort?: ReasoningEffort,
 ): Model | string {
+  const resolvedModel = resolveModelForAgent(model);
+
   try {
-    // 指定されたproviderでモデルを作成
-    const modelConfig = getModelConfig(model, provider, { reasoningEffort });
+    const modelConfig = getModelConfig(resolvedModel, provider, {
+      reasoningEffort,
+    });
     return aisdk(modelConfig);
   } catch (error) {
     console.warn(
-      `Failed to create agent model, falling back to model name string:`,
+      `Failed to create agent model, falling back to OpenAI default:`,
       error,
     );
 
-    // フォールバック: モデル名（文字列）を返してOpenAI Agents SDKに解決を委譲
-    const fallbackModelName = model ?? DEFAULT_MODEL;
-    return fallbackModelName;
+    if (!process.env.OPENAI_API_KEY) {
+      throw error instanceof Error ? error : new Error(String(error));
+    }
+
+    const openaiFallback = getModelConfig(DEFAULT_MODEL, "openai", {
+      reasoningEffort,
+    });
+    return aisdk(openaiFallback);
   }
 }

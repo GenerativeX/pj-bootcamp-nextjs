@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, Input, Spinner, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Spinner, Text, Textarea, VStack } from "@chakra-ui/react";
 import { useCallback, useMemo, useState } from "react";
 import { apiClient } from "@/lib/api-client";
 
@@ -127,18 +127,23 @@ export default function SidebarAiChat() {
             </VStack>
           </Box>
 
-          <Input
+          <Textarea
             size="sm"
             value={input}
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+              if (event.key !== "Enter" || event.nativeEvent.isComposing) {
+                return;
+              }
+              if (event.metaKey || event.ctrlKey) {
                 event.preventDefault();
                 void sendMessage();
               }
             }}
             placeholder="AIに質問..."
             disabled={isLoading}
+            rows={3}
+            resize="vertical"
           />
 
           <Button

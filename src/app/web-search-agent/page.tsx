@@ -6,7 +6,7 @@ import {
   Button,
   Container,
   Heading,
-  Input,
+  Textarea,
   VStack,
   HStack,
   Text,
@@ -23,7 +23,7 @@ interface Message {
 export default function WebSearchAgentPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [model, setModel] = useState("claude-sonnet-4-6");
+  const [model, setModel] = useState("gpt-5.4-2026-03-05");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -162,18 +162,21 @@ export default function WebSearchAgentPage() {
           </VStack>
         </Box>
 
-        <HStack>
-          <Input
+        <HStack align="flex-end">
+          <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
+              if (e.metaKey || e.ctrlKey) {
                 e.preventDefault();
                 sendMessage();
               }
             }}
             placeholder="質問を入力... (例: 最新のAIニュースを教えて)"
             disabled={isLoading}
+            rows={3}
+            resize="vertical"
           />
           <Button onClick={sendMessage} loading={isLoading} colorPalette="blue">
             送信
