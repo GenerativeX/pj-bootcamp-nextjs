@@ -9,9 +9,6 @@ export const metadata: Metadata = {
     template: SITE_METADATA.TEMPLATE,
   },
   description: SITE_METADATA.DESCRIPTION,
-  icons: {
-    icon: SITE_METADATA.ICON,
-  },
 };
 
 export default function RootLayout({

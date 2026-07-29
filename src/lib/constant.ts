@@ -2,7 +2,6 @@ export const SITE_METADATA = {
   NAME: "AI coding camp",
   TEMPLATE: "%s | AI coding camp",
   DESCRIPTION: "AI coding camp",
-  ICON: "/favicon.ico",
 };
 
 import type { IconType } from "react-icons";

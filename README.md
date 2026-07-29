@@ -16,10 +16,28 @@ Cursorを使いエージェントモードで編集します。
 ## ローカル起動手順
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env.local   # 利用するプロバイダのAPIキーを設定
 yarn install
 yarn dev
-yarn orval           # 別ターミナルで実行（devサーバー起動中に実行する必要あり）
 ```
 
+`.env.local` を設定しなくても起動できます。その場合、LLMは外部APIを呼ばずに
+モック応答を返すため、画面やUIの確認はAPIキー無しで行えます。
+
 ## 日常作業コマンド
+
+```bash
+yarn dev        # 開発サーバー起動（http://localhost:3000）
+yarn build      # 本番ビルド
+yarn start      # 本番ビルドの起動
+yarn lint       # Biome によるチェック
+yarn format     # Biome による自動整形
+yarn kill-port  # ポート3000を掴んでいるプロセスを終了
+```
+
+## 必要な環境
+
+- Node.js 23 以上
+- Yarn 4.9.1（corepack により自動で用意されます）
+
+データベース・Docker・外部インフラは不要です。
