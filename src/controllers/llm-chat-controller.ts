@@ -1,10 +1,15 @@
-import OpenAI from "openai";
+import OpenAI, { AzureOpenAI } from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import {
   BedrockRuntimeClient,
   InvokeModelCommand,
 } from "@aws-sdk/client-bedrock-runtime";
 import { WebController } from "@/controllers/web-controller";
+import {
+  DEFAULT_AZURE_API_VERSION,
+  getAzureDeploymentName,
+  hasAzureOpenAICredentials,
+} from "@/lib/llm/ai-sdk";
 
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -28,16 +33,18 @@ export interface ChatResponse {
 
 export class LlmChatController {
   private openai: OpenAI | null = null;
+  private azureOpenai: AzureOpenAI | null = null;
   private anthropic: Anthropic | null = null;
   private bedrock: BedrockRuntimeClient | null = null;
   private webController = new WebController();
   /**
    * ローカル開発用のモック応答を使うかどうか
    * - 明示的に LLM_USE_MOCK=true の場合
-   * - 開発環境かつ OpenAI / Bedrock どちらの認証情報も無い場合
+   * - 開発環境かつ Azure OpenAI / OpenAI / Anthropic / Bedrock いずれの認証情報も無い場合
    */
   private useMock: boolean;
   private hasOpenAI: boolean;
+  private hasAzure: boolean;
   private hasAnthropic: boolean;
   private hasBedrock: boolean;
 
@@ -49,13 +56,28 @@ export class LlmChatController {
     const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
     this.hasOpenAI = !!openaiApiKey;
+    this.hasAzure = hasAzureOpenAICredentials();
     this.hasAnthropic = !!anthropicApiKey;
     this.hasBedrock = !!(awsAccessKeyId && awsSecretAccessKey);
 
     const isDev = process.env.NODE_ENV !== "production";
     this.useMock =
       process.env.LLM_USE_MOCK === "true" ||
-      (isDev && !this.hasOpenAI && !this.hasBedrock && !this.hasAnthropic);
+      (isDev &&
+        !this.hasAzure &&
+        !this.hasOpenAI &&
+        !this.hasBedrock &&
+        !this.hasAnthropic);
+
+    if (this.hasAzure) {
+      this.azureOpenai = new AzureOpenAI({
+        apiKey: process.env.AZURE_OPENAI_API_KEY,
+        endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+        apiVersion:
+          process.env.AZURE_OPENAI_API_VERSION || DEFAULT_AZURE_API_VERSION,
+        deployment: getAzureDeploymentName(),
+      });
+    }
 
     if (this.hasOpenAI && openaiApiKey) {
       this.openai = new OpenAI({
@@ -97,6 +119,8 @@ export class LlmChatController {
     const isClaude = model.startsWith("claude-");
     const isDev = process.env.NODE_ENV !== "production";
     const preferAnthropic = isDev && this.hasAnthropic;
+    // OpenAI系モデルは Azure OpenAI の設定があればそちらを優先する
+    const useAzure = !isClaude && this.hasAzure;
 
     console.log(`[LLM Chat] User: ${userEmail}`);
     console.log(
@@ -105,7 +129,9 @@ export class LlmChatController {
           ? preferAnthropic
             ? "Claude (Anthropic)"
             : "Claude (Bedrock)"
-          : "OpenAI"
+          : useAzure
+            ? "Azure OpenAI"
+            : "OpenAI"
       }`,
     );
     console.log(`[LLM Chat] Model: ${model}`);
@@ -123,7 +149,7 @@ export class LlmChatController {
     const shouldUseMock =
       this.useMock ||
       (isClaude && !this.hasBedrock && !preferAnthropic) ||
-      (!isClaude && !this.hasOpenAI);
+      (!isClaude && !this.hasAzure && !this.hasOpenAI);
 
     if (shouldUseMock) {
       console.log("[LLM Chat] Using mock LLM response (local mode)");
@@ -142,6 +168,12 @@ export class LlmChatController {
             temperature,
             max_tokens,
           );
+    } else if (useAzure) {
+      responseText = await this.chatWithAzureOpenAI(
+        finalMessages,
+        temperature,
+        max_tokens,
+      );
     } else {
       responseText = await this.chatWithOpenAI(
         finalMessages,
@@ -335,6 +367,74 @@ export class LlmChatController {
     if (!first) return "";
     // SDKの型上は union なので安全側に倒す
     return "text" in first ? (first.text ?? "") : "";
+  }
+
+  /**
+   * Azure OpenAI で応答を生成する
+   *
+   * Azureではモデル名ではなく「デプロイ名」でリクエストする。
+   * Responses API はAPIバージョンによっては未対応のため、
+   * 失敗した場合は Chat Completions にフォールバックする。
+   * （Chat Completions のトークン上限パラメータはモデル世代によって
+   *   max_completion_tokens / max_tokens に分かれるため両方試す）
+   */
+  private async chatWithAzureOpenAI(
+    messages: ChatMessage[],
+    _temperature: number,
+    max_tokens: number,
+  ): Promise<string> {
+    const deployment = getAzureDeploymentName();
+    console.log("[LLM Chat] Using Azure OpenAI API");
+    console.log(`[LLM Chat] Deployment: ${deployment}`);
+
+    if (!this.azureOpenai) {
+      throw new Error("Azure OpenAI client is not configured");
+    }
+    const client = this.azureOpenai;
+
+    const input = messages.map((m) => ({ role: m.role, content: m.content }));
+
+    try {
+      const response = await client.responses.create({
+        model: deployment,
+        input,
+        max_output_tokens: max_tokens,
+      });
+      if (response.output_text && response.output_text.trim().length > 0) {
+        return response.output_text;
+      }
+      return this.extractResponseText(response);
+    } catch (error) {
+      console.warn(
+        "[LLM Chat] Azure Responses API failed, falling back to Chat Completions:",
+        error instanceof Error ? error.message : error,
+      );
+    }
+
+    for (const tokenParam of ["max_completion_tokens", "max_tokens"] as const) {
+      try {
+        const completion = await client.chat.completions.create({
+          model: deployment,
+          messages: input,
+          [tokenParam]: max_tokens,
+        } as never);
+        const text = completion.choices?.[0]?.message?.content;
+        if (typeof text === "string" && text.trim().length > 0) {
+          return text;
+        }
+        return "";
+      } catch (error) {
+        console.warn(
+          `[LLM Chat] Azure Chat Completions with ${tokenParam} failed:`,
+          error instanceof Error ? error.message : error,
+        );
+        if (tokenParam === "max_tokens") {
+          throw error;
+        }
+      }
+    }
+
+    return "";
   }
 
   private async chatWithOpenAI(

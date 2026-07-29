@@ -29,9 +29,10 @@ export type AvailableModel = z.infer<typeof AvailableModelSchema>;
 /**
  * 利用可能なプロバイダー
  * - openai: OpenAI直接
+ * - azure: Azure OpenAI
  * - bedrock: AWS Bedrock
  */
-export const AvailableProviderSchema = z.enum(["openai", "bedrock"]);
+export const AvailableProviderSchema = z.enum(["openai", "azure", "bedrock"]);
 export const AVAILABLE_PROVIDERS = AvailableProviderSchema.options;
 export type AvailableProvider = z.infer<typeof AvailableProviderSchema>;
 

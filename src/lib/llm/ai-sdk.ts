@@ -1,4 +1,5 @@
 import { openai } from "@ai-sdk/openai";
+import { createAzure } from "@ai-sdk/azure";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { bedrock } from "@ai-sdk/amazon-bedrock";
@@ -17,13 +18,41 @@ import type { Model } from "@openai/agents";
 
 /**
  * AI SDKのモデルプロバイダー型
- * - OpenAI, Anthropic, Google, AWS Bedrockをサポート
+ * - OpenAI, Azure OpenAI, Anthropic, Google, AWS Bedrockをサポート
  */
 export type ModelProvider =
   | typeof openai
   | typeof anthropic
   | typeof google
-  | typeof bedrock;
+  | typeof bedrock
+  | ReturnType<typeof createAzure>;
+
+/**
+ * Azure OpenAI の既定APIバージョン
+ * Responses API を利用するため 2025-04-01-preview 以降を既定とする
+ */
+export const DEFAULT_AZURE_API_VERSION = "2025-04-01-preview";
+
+/**
+ * Azure OpenAI の設定が揃っているか
+ * APIキー・エンドポイント・デプロイ名の3つが必須（APIバージョンは既定値あり）
+ */
+export function hasAzureOpenAICredentials(): boolean {
+  return !!(
+    process.env.AZURE_OPENAI_API_KEY &&
+    process.env.AZURE_OPENAI_ENDPOINT &&
+    process.env.AZURE_OPENAI_DEPLOYMENT_NAME
+  );
+}
+
+/**
+ * Azure OpenAI のデプロイ名を取得
+ * Azure ではモデル名ではなくデプロイ名でリクエストするため、
+ * UI で選択されたモデル名に関わらずこの値が使われる
+ */
+export function getAzureDeploymentName(): string {
+  return process.env.AZURE_OPENAI_DEPLOYMENT_NAME ?? "";
+}
 
 /**
  * 標準プロバイダー設定の型定義
@@ -129,6 +158,27 @@ function validateProviderApiKey(
 // ================================
 
 /**
+ * Azure OpenAIプロバイダーインスタンスを生成
+ *
+ * @returns Azure OpenAIプロバイダーインスタンス
+ * @throws 必要な環境変数が不足している場合
+ */
+function createAzureProviderInstance(): ReturnType<typeof createAzure> {
+  if (!hasAzureOpenAICredentials()) {
+    throw new Error(
+      "Azure OpenAIの環境変数が不足しています。AZURE_OPENAI_API_KEY / AZURE_OPENAI_ENDPOINT / AZURE_OPENAI_DEPLOYMENT_NAME を .env.local に設定してください。",
+    );
+  }
+
+  return createAzure({
+    apiKey: process.env.AZURE_OPENAI_API_KEY,
+    baseURL: process.env.AZURE_OPENAI_ENDPOINT,
+    apiVersion:
+      process.env.AZURE_OPENAI_API_VERSION || DEFAULT_AZURE_API_VERSION,
+  });
+}
+
+/**
  * Bedrockモデル名を実際のモデルIDにマッピング（APAC推論プロファイル使用）
  *
  * @param modelName フレンドリーなモデル名
@@ -182,6 +232,12 @@ function getStandardProvider(modelName: string): [ModelProvider, string] {
     }
   }
 
+  // OpenAI系モデルは、Azure OpenAIの設定があればそちらを優先する。
+  // Azureではモデル名ではなくデプロイ名でリクエストする点に注意。
+  if (providerKey === "openai" && hasAzureOpenAICredentials()) {
+    return [createAzureProviderInstance(), getAzureDeploymentName()];
+  }
+
   validateProviderApiKey(providerKey);
   const config = standardProviders[providerKey];
   return [config.provider, actualModelName];
@@ -209,6 +265,9 @@ export function getProviderAndModel(
 ): [ModelProvider, string] {
   // モデル名未指定の場合はデフォルトを使用
   if (!modelName) {
+    if (hasAzureOpenAICredentials()) {
+      return [createAzureProviderInstance(), getAzureDeploymentName()];
+    }
     validateProviderApiKey("openai");
     return [standardProviders.openai.provider, DEFAULT_MODEL];
   }
@@ -341,7 +400,7 @@ export function getAgentModel(
       error,
     );
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.OPENAI_API_KEY && !hasAzureOpenAICredentials()) {
       throw error instanceof Error ? error : new Error(String(error));
     }
 
