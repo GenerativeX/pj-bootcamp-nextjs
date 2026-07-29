@@ -120,13 +120,29 @@ export class LlmChatController {
     const isClaude = model.startsWith("claude-");
     const isDev = process.env.NODE_ENV !== "production";
     const preferAnthropic = isDev && this.hasAnthropic;
+    // Claude系モデルを実際に処理できる認証情報があるか
+    const claudeAvailable = preferAnthropic || this.hasBedrock;
+    // GPT系（Azure優先、無ければOpenAI直接）を処理できるか
+    const gptAvailable = this.hasAzure || this.hasOpenAI;
+    // Claude系が選択されていても認証情報が無い場合は Azure/OpenAI にフォールバック
+    // （Web検索Agent側の resolveModelForAgent と同じ方針）
+    const fallbackFromClaude = isClaude && !claudeAvailable && gptAvailable;
+    const useClaude = isClaude && claudeAvailable;
     // OpenAI系モデルは Azure OpenAI の設定があればそちらを優先する
-    const useAzure = !isClaude && this.hasAzure;
+    const useAzure = !useClaude && this.hasAzure;
+
+    if (fallbackFromClaude) {
+      console.warn(
+        `[LLM Chat] Claude model "${model}" is unavailable (set ANTHROPIC_API_KEY or AWS credentials). Falling back to ${
+          this.hasAzure ? "Azure OpenAI" : "OpenAI"
+        }.`,
+      );
+    }
 
     console.log(`[LLM Chat] User: ${userEmail}`);
     console.log(
       `[LLM Chat] Provider: ${
-        isClaude
+        useClaude
           ? preferAnthropic
             ? "Claude (Anthropic)"
             : "Claude (Bedrock)"
@@ -149,13 +165,12 @@ export class LlmChatController {
 
     const shouldUseMock =
       this.useMock ||
-      (isClaude && !this.hasBedrock && !preferAnthropic) ||
-      (!isClaude && !this.hasAzure && !this.hasOpenAI);
+      (isClaude ? !claudeAvailable && !gptAvailable : !gptAvailable);
 
     if (shouldUseMock) {
       console.log("[LLM Chat] Using mock LLM response (local mode)");
       responseText = this.chatWithMock(finalMessages, model);
-    } else if (isClaude) {
+    } else if (useClaude) {
       responseText = preferAnthropic
         ? await this.chatWithClaudeAnthropic(
             finalMessages,
@@ -176,9 +191,10 @@ export class LlmChatController {
         max_tokens,
       );
     } else {
+      // Claudeからのフォールバック時はOpenAIにClaudeのモデル名を渡せないため既定モデルを使う
       responseText = await this.chatWithOpenAI(
         finalMessages,
-        model,
+        fallbackFromClaude ? "gpt-5.4-2026-03-05" : model,
         temperature,
         max_tokens,
       );
