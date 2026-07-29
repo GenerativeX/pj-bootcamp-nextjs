@@ -7,6 +7,7 @@ import {
 import { WebController } from "@/controllers/web-controller";
 import {
   DEFAULT_AZURE_API_VERSION,
+  getAzureBaseEndpoint,
   getAzureDeploymentName,
   hasAzureOpenAICredentials,
 } from "@/lib/llm/ai-sdk";
@@ -72,7 +73,7 @@ export class LlmChatController {
     if (this.hasAzure) {
       this.azureOpenai = new AzureOpenAI({
         apiKey: process.env.AZURE_OPENAI_API_KEY,
-        endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+        endpoint: getAzureBaseEndpoint(),
         apiVersion:
           process.env.AZURE_OPENAI_API_VERSION || DEFAULT_AZURE_API_VERSION,
         deployment: getAzureDeploymentName(),

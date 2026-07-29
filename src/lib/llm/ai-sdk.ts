@@ -55,6 +55,22 @@ export function getAzureDeploymentName(): string {
 }
 
 /**
+ * Azure OpenAI のエンドポイントを「リソースの素のURL」に正規化する
+ *
+ * 例: https://my-resource.openai.azure.com
+ *
+ * 末尾のスラッシュと、利用者が付けている場合の "/openai" を取り除く。
+ * openai SDK の AzureOpenAI は素のURLを、@ai-sdk/azure は "/openai" 付きを
+ * 期待するため、ここで基準を揃えてから各所で組み立てる。
+ */
+export function getAzureBaseEndpoint(): string {
+  return (process.env.AZURE_OPENAI_ENDPOINT ?? "")
+    .trim()
+    .replace(/\/+$/, "")
+    .replace(/\/openai$/, "");
+}
+
+/**
  * 標準プロバイダー設定の型定義
  */
 type StandardProviderConfig = {
@@ -170,11 +186,17 @@ function createAzureProviderInstance(): ReturnType<typeof createAzure> {
     );
   }
 
+  // useDeploymentBasedUrls: true で
+  //   {baseURL}/deployments/{デプロイ名}{path}?api-version={apiVersion}
+  // の従来形式になり、openai SDK の AzureOpenAI が組み立てるURLと一致する。
+  // 指定しない場合は {baseURL}/v1{path} 形式になり、APIバージョンの指定と
+  // 噛み合わずに404になるため必須。
   return createAzure({
     apiKey: process.env.AZURE_OPENAI_API_KEY,
-    baseURL: process.env.AZURE_OPENAI_ENDPOINT,
+    baseURL: `${getAzureBaseEndpoint()}/openai`,
     apiVersion:
       process.env.AZURE_OPENAI_API_VERSION || DEFAULT_AZURE_API_VERSION,
+    useDeploymentBasedUrls: true,
   });
 }
 
