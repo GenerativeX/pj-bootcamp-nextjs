@@ -40,28 +40,32 @@ export const searchAllGoogleCustomSearch = async (
     api_key: apiKey,
   });
 
-  try {
-    const response = await fetch(`https://serpapi.com/search.json?${params}`);
-    if (!response.ok) {
-      throw new Error(`SerpAPI request failed: ${response.status}`);
-    }
+  const response = await fetch(`https://serpapi.com/search.json?${params}`);
+  const json = (await response.json()) as SerpApiResponse;
 
-    const json = (await response.json()) as SerpApiResponse;
-    if (json.error) {
-      throw new Error(`SerpAPI error: ${json.error}`);
-    }
-
-    const items = Array.isArray(json.organic_results)
-      ? json.organic_results
-      : [];
-    return items.map((item) => ({
-      query,
-      title: item.title ?? "",
-      link: item.link ?? "",
-      snippet: item.snippet ?? "",
-    }));
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`検索実行中にエラーが発生しました: ${message}`);
+  if (response.status === 401 || json.error?.toLowerCase().includes("invalid api key")) {
+    throw new Error(
+      "SERP_API_KEY が無効です。https://serpapi.com/manage-api-key でキーを確認し、.env を更新してください。",
+    );
   }
+
+  if (!response.ok) {
+    throw new Error(
+      `SerpAPI request failed: ${response.status}${json.error ? ` (${json.error})` : ""}`,
+    );
+  }
+
+  if (json.error) {
+    throw new Error(`SerpAPI error: ${json.error}`);
+  }
+
+  const items = Array.isArray(json.organic_results)
+    ? json.organic_results
+    : [];
+  return items.map((item) => ({
+    query,
+    title: item.title ?? "",
+    link: item.link ?? "",
+    snippet: item.snippet ?? "",
+  }));
 };
