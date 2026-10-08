@@ -62,3 +62,8 @@ src/generated/
 
 .pnpm-store
 .local-storage
+
+# >>> gx-env >>>
+# Plaintext written by gx-env inject. Never commit these.
+.env.local
+# <<< gx-env <<<
