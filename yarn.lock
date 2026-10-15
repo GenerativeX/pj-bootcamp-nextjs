@@ -5,78 +5,77 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@ai-sdk/amazon-bedrock@npm:^3.0.56":
-  version: 3.0.140
-  resolution: "@ai-sdk/amazon-bedrock@npm:3.0.140"
+"@ai-sdk/amazon-bedrock@npm:3.0.105":
+  version: 3.0.105
+  resolution: "@ai-sdk/amazon-bedrock@npm:3.0.105"
   dependencies:
-    "@ai-sdk/anthropic": "npm:2.0.109"
-    "@ai-sdk/provider": "npm:2.0.5"
-    "@ai-sdk/provider-utils": "npm:3.0.41"
+    "@ai-sdk/anthropic": "npm:2.0.85"
+    "@ai-sdk/provider": "npm:2.0.3"
+    "@ai-sdk/provider-utils": "npm:3.0.28"
     "@smithy/eventstream-codec": "npm:^4.0.1"
     "@smithy/util-utf8": "npm:^4.0.0"
     aws4fetch: "npm:^1.0.20"
   peerDependencies:
     zod: ^3.25.76 || ^4.1.8
-  checksum: 10c0/b89f90862dd8d22ac34e2f503630edb809b11e6c2d1d130b9fea36fe3299b9809b4d81bb36e8ddf8ceb1580351cde88a2314e056436fcf8b80cb01c46a8e765e
+  checksum: 10c0/c35345ac343ae0f18e73b4c2f6b173ac386eefda6c5b1de81f3aa71309a0f252612735ea9cee302c67ba56148f2d8767a55928bd82ce122e863f258d1d868dee
   languageName: node
   linkType: hard
 
-"@ai-sdk/anthropic@npm:2.0.109, @ai-sdk/anthropic@npm:^2.0.38":
-  version: 2.0.109
-  resolution: "@ai-sdk/anthropic@npm:2.0.109"
+"@ai-sdk/anthropic@npm:2.0.85":
+  version: 2.0.85
+  resolution: "@ai-sdk/anthropic@npm:2.0.85"
   dependencies:
-    "@ai-sdk/provider": "npm:2.0.5"
-    "@ai-sdk/provider-utils": "npm:3.0.41"
+    "@ai-sdk/provider": "npm:2.0.3"
+    "@ai-sdk/provider-utils": "npm:3.0.28"
   peerDependencies:
     zod: ^3.25.76 || ^4.1.8
-  checksum: 10c0/2e18162b1036c81e02bdb8615a8f0259f43c703a5218c82e269d16428c6511c279ae560eb2148c959b0589ceabe814f62d0d8e764daab24186f5b944ad17a7ba
+  checksum: 10c0/298d8649280ea345c5c89386bb1bfd85d6fd00bb5c965dd853d6d16dd99d19660700b86c74d27602ad557cd18ab988740b8dcbea49a14a8b43d94d07c987ecde
   languageName: node
   linkType: hard
 
-"@ai-sdk/google@npm:^2.0.24":
-  version: 2.0.103
-  resolution: "@ai-sdk/google@npm:2.0.103"
+"@ai-sdk/google@npm:2.0.79":
+  version: 2.0.79
+  resolution: "@ai-sdk/google@npm:2.0.79"
   dependencies:
-    "@ai-sdk/provider": "npm:2.0.5"
-    "@ai-sdk/provider-utils": "npm:3.0.41"
+    "@ai-sdk/provider": "npm:2.0.3"
+    "@ai-sdk/provider-utils": "npm:3.0.28"
   peerDependencies:
     zod: ^3.25.76 || ^4.1.8
-  checksum: 10c0/893731aa7031b52a6097bb503bfe92a362ba386c4c8cd9df32fcfb6a7f74cbc84ec358c9d4220f827167a58534bfb1b4ac2380667302d07ba370aa02150345f1
+  checksum: 10c0/5529a8b181adbd91ec541671c6a7d53098c51873d91dc46691ac64343d101ce2a317ee6d1609757778579563274b03e38a49b039000f3b469e74cb8ebce69f7f
   languageName: node
   linkType: hard
 
-"@ai-sdk/openai@npm:^2.0.56":
-  version: 2.0.135
-  resolution: "@ai-sdk/openai@npm:2.0.135"
+"@ai-sdk/openai@npm:2.0.111":
+  version: 2.0.111
+  resolution: "@ai-sdk/openai@npm:2.0.111"
   dependencies:
-    "@ai-sdk/provider": "npm:2.0.5"
-    "@ai-sdk/provider-utils": "npm:3.0.41"
+    "@ai-sdk/provider": "npm:2.0.3"
+    "@ai-sdk/provider-utils": "npm:3.0.28"
   peerDependencies:
     zod: ^3.25.76 || ^4.1.8
-  checksum: 10c0/3f3a72d30308ea6f29ab0c4646b80177167b3c1895c330b2caaf206bd7fc53daccbeca6c2dabd186c1e1f40d2b6ca57507a9f3c8afd96e20cc406275c3d1f9d4
+  checksum: 10c0/329bae63617bbe2f1f213a354e51a2f0a2e3cbe1a88b8a7e80d8022a96533c8e566da2f425654bddce3a9b5907456f4ead4044ca60642cc2bb180d593f9a4e80
   languageName: node
   linkType: hard
 
-"@ai-sdk/provider-utils@npm:3.0.41":
-  version: 3.0.41
-  resolution: "@ai-sdk/provider-utils@npm:3.0.41"
+"@ai-sdk/provider-utils@npm:3.0.28":
+  version: 3.0.28
+  resolution: "@ai-sdk/provider-utils@npm:3.0.28"
   dependencies:
-    "@ai-sdk/provider": "npm:2.0.5"
+    "@ai-sdk/provider": "npm:2.0.3"
     "@standard-schema/spec": "npm:^1.0.0"
     eventsource-parser: "npm:^3.0.6"
-    undici: "npm:^5.29.0"
   peerDependencies:
     zod: ^3.25.76 || ^4.1.8
-  checksum: 10c0/42fc6337de4024797181ea1d658408d4d368b7d17af1d62025b2c86359516e2039877da7a550ec06381d42aa2ca3fff8ef82191152f36a32c3b607dfab9c2888
+  checksum: 10c0/fcbcead985ebaa22fef548acce600ca65c343b13a92de808da5e5bd01a61c0f7856a19840bb3eeeb6b6ac808c4f6ca031524192085d21560cf78fa7d9833dda0
   languageName: node
   linkType: hard
 
-"@ai-sdk/provider@npm:2.0.5":
-  version: 2.0.5
-  resolution: "@ai-sdk/provider@npm:2.0.5"
+"@ai-sdk/provider@npm:2.0.3":
+  version: 2.0.3
+  resolution: "@ai-sdk/provider@npm:2.0.3"
   dependencies:
     json-schema: "npm:^0.4.0"
-  checksum: 10c0/9c02beda91331779f58f6090b15101090005d317f4ddb41a18912fbd4cb0c840a864bf1b5a3e3d8e24b7c0c662f4c21e02ab577423a75a3298bcc5cc0d329906
+  checksum: 10c0/f0f663a2d2226d3cb447a3bcc13c70333c1957953237c5583681f26b0d4109f7136ce234499ba730c63bba97243e127b7763d8d962571377d1d9b5193506232c
   languageName: node
   linkType: hard
 
@@ -1557,13 +1556,6 @@ __metadata:
   version: 0.4.0
   resolution: "@emotion/weak-memoize@npm:0.4.0"
   checksum: 10c0/64376af11f1266042d03b3305c30b7502e6084868e33327e944b539091a472f089db307af69240f7188f8bc6b319276fd7b141a36613f1160d73d12a60f6ca1a
-  languageName: node
-  linkType: hard
-
-"@fastify/busboy@npm:^2.0.0":
-  version: 2.1.1
-  resolution: "@fastify/busboy@npm:2.1.1"
-  checksum: 10c0/6f8027a8cba7f8f7b736718b013f5a38c0476eea67034c94a0d3c375e2b114366ad4419e6a6fa7ffc2ef9c6d3e0435d76dd584a7a1cbac23962fda7650b579e3
   languageName: node
   linkType: hard
 
@@ -5077,10 +5069,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "pj-nextjs-monorepo@workspace:."
   dependencies:
-    "@ai-sdk/amazon-bedrock": "npm:^3.0.56"
-    "@ai-sdk/anthropic": "npm:^2.0.38"
-    "@ai-sdk/google": "npm:^2.0.24"
-    "@ai-sdk/openai": "npm:^2.0.56"
+    "@ai-sdk/amazon-bedrock": "npm:3.0.105"
+    "@ai-sdk/anthropic": "npm:2.0.85"
+    "@ai-sdk/google": "npm:2.0.79"
+    "@ai-sdk/openai": "npm:2.0.111"
     "@ai-sdk/provider": "npm:^2.0.0"
     "@anthropic-ai/sdk": "npm:^0.67.0"
     "@aws-sdk/client-bedrock-runtime": "npm:^3.933.0"
@@ -5654,15 +5646,6 @@ __metadata:
   version: 7.18.2
   resolution: "undici-types@npm:7.18.2"
   checksum: 10c0/85a79189113a238959d7a647368e4f7c5559c3a404ebdb8fc4488145ce9426fcd82252a844a302798dfc0e37e6fb178ff481ed03bc4caf634c5757d9ef43521d
-  languageName: node
-  linkType: hard
-
-"undici@npm:^5.29.0":
-  version: 5.29.0
-  resolution: "undici@npm:5.29.0"
-  dependencies:
-    "@fastify/busboy": "npm:^2.0.0"
-  checksum: 10c0/e4e4d631ca54ee0ad82d2e90e7798fa00a106e27e6c880687e445cc2f13b4bc87c5eba2a88c266c3eecffb18f26e227b778412da74a23acc374fca7caccec49b
   languageName: node
   linkType: hard
 
