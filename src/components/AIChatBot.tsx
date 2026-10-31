@@ -107,6 +107,7 @@ export default function AIChatBot() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
@@ -215,8 +216,12 @@ export default function AIChatBot() {
           justifyContent: "center",
           transition: "transform 0.3s",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.08)")}
-        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "scale(1.08)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+        }}
       >
         {isOpen ? "\u2715" : "\uD83D\uDCAC"}
         {showBadge && !isOpen && (
@@ -508,8 +513,12 @@ export default function AIChatBot() {
                 outline: "none",
                 fontFamily: "inherit",
               }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#285ae1")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#ddd")}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "#285ae1";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "#ddd";
+              }}
             />
             <button
               type="button"

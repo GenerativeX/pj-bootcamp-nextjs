@@ -1,4 +1,4 @@
-import { createReadStream, createWriteStream } from "node:fs";
+import { createReadStream, createWriteStream, type Dirent } from "node:fs";
 import {
   mkdir,
   readFile,
@@ -31,7 +31,7 @@ const sanitize = (value: string): string => {
 
 const walkFiles = async (root: string, current = ""): Promise<string[]> => {
   const abs = current ? path.join(root, current) : root;
-  let entries: Awaited<ReturnType<typeof readdir>>;
+  let entries: Dirent[];
   try {
     entries = await readdir(abs, { withFileTypes: true });
   } catch (error) {

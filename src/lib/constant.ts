@@ -6,12 +6,7 @@ export const SITE_METADATA = {
 };
 
 import type { IconType } from "react-icons";
-import {
-  FiMessageSquare,
-  FiGlobe,
-  FiFileText,
-  FiSearch,
-} from "react-icons/fi";
+import { FiMessageSquare, FiGlobe, FiFileText, FiSearch } from "react-icons/fi";
 
 export interface LinkItemProps {
   name: string;
