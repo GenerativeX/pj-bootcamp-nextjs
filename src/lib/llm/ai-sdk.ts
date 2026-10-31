@@ -292,11 +292,13 @@ function withReasoningEffort(
 
   // モデルをラップしてproviderOptionsを注入
   const wrapped = Object.create(model) as LanguageModelV2;
+  // biome-ignore lint/suspicious/noExplicitAny: passthrough of provider call options
   wrapped.doGenerate = async (options: any) =>
     model.doGenerate({
       ...options,
       providerOptions: ensureProviderOptions(options.providerOptions),
     });
+  // biome-ignore lint/suspicious/noExplicitAny: passthrough of provider call options
   wrapped.doStream = async (options: any) =>
     model.doStream({
       ...options,

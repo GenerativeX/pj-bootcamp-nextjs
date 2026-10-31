@@ -43,7 +43,10 @@ export const searchAllGoogleCustomSearch = async (
   const response = await fetch(`https://serpapi.com/search.json?${params}`);
   const json = (await response.json()) as SerpApiResponse;
 
-  if (response.status === 401 || json.error?.toLowerCase().includes("invalid api key")) {
+  if (
+    response.status === 401 ||
+    json.error?.toLowerCase().includes("invalid api key")
+  ) {
     throw new Error(
       "SERP_API_KEY が無効です。https://serpapi.com/manage-api-key でキーを確認し、.env を更新してください。",
     );
@@ -59,9 +62,7 @@ export const searchAllGoogleCustomSearch = async (
     throw new Error(`SerpAPI error: ${json.error}`);
   }
 
-  const items = Array.isArray(json.organic_results)
-    ? json.organic_results
-    : [];
+  const items = Array.isArray(json.organic_results) ? json.organic_results : [];
   return items.map((item) => ({
     query,
     title: item.title ?? "",

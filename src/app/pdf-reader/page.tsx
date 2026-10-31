@@ -80,7 +80,8 @@ export default function PdfReaderPage() {
       <VStack gap={6} align="stretch">
         <Heading>PDF Reader</Heading>
         <Text color="gray.600">
-          PDF ファイルをアップロードすると、ページごとのテキストを抽出して表示します。
+          PDF
+          ファイルをアップロードすると、ページごとのテキストを抽出して表示します。
         </Text>
 
         <Card.Root>
@@ -118,7 +119,13 @@ export default function PdfReaderPage() {
         </Card.Root>
 
         {error && (
-          <Box p={4} bg="red.50" borderRadius="md" borderWidth="1px" borderColor="red.200">
+          <Box
+            p={4}
+            bg="red.50"
+            borderRadius="md"
+            borderWidth="1px"
+            borderColor="red.200"
+          >
             <Text color="red.600">{error}</Text>
           </Box>
         )}

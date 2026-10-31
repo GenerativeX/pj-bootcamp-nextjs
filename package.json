@@ -13,7 +13,8 @@
     "lint": "biome check",
     "format": "biome format --write",
     "kill-port": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true",
-    "prepare": "husky"
+    "prepare": "husky",
+    "smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "3.0.105",

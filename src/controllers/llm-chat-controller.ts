@@ -373,6 +373,7 @@ export class LlmChatController {
     return outputText;
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: response shape varies by SDK version
   private extractResponseText(response: any): string {
     const output = Array.isArray(response?.output) ? response.output : [];
     const texts: string[] = [];
